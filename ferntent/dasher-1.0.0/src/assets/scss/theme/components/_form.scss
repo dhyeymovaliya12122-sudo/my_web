@@ -1,0 +1,87 @@
+
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.form-focus-none {
+  &.form-control {
+    &:focus {
+      outline: none;
+      box-shadow: none;
+    }
+  }
+  &.form-select {
+    &:focus {
+      outline: none;
+      box-shadow: none;
+    }
+  }
+}
+
+
+
+.input-spinner {
+  .button-minus,
+  .button-plus {
+    height: 2rem;
+    width: 1.8rem;
+    border-color: var(--#{$prefix}gray-200);
+    background-color: transparent;
+    &:hover {
+      background-color: var(--#{$prefix}gray-200);
+      border-color: var(--#{$prefix}gray-200);
+    }
+  }
+  .form-input {
+    width: 2rem !important;
+
+    height: 100%;
+    min-height: 2rem;
+    text-align: center;
+    border: 1px solid var(--#{$prefix}gray-200);
+    background: 0 0;
+  }
+}
+
+
+.file-upload {
+  position: relative;
+  overflow: hidden;
+
+  input.file-input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity = 0);
+    height: 100%;
+  }
+}
+
+
+.inputpass-code {
+  height: 64px;
+  width: 64px;
+  font-size: 32px;
+  margin: 0 auto;
+  text-align: center;
+  color: var(--#{$prefix}gray-800);
+}
+
+::placeholder {
+  color: var(--#{$prefix}gray-500);
+  opacity: 1; 
+}
+
+.form-check-input[type='checkbox'][data-indeterminate='true'] {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http:
+  background-color: var(--#{$prefix}primary);
+  border-color: var(--#{$prefix}primary);
+}

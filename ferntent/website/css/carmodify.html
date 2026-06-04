@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Modifier | Premium Auto</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .modifier-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem auto;
+            max-width: 1400px;
+            padding: 0 1rem;
+        }
+
+        .car-preview {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 2rem;
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+
+        /* DYNAMIC TINT IMAGE WRAPPER SYSTEM */
+        .car-image-container {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .car-image-container img {
+            display: block;
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            /* Mix-blend target background contrast adjustments */
+            filter: contrast(1.1) brightness(1.0);
+        }
+
+        /* Color layer that sits on top of the car image */
+        .color-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Allows click throughs */
+            mix-blend-mode: color; /* Changes color tones while preserving reflections & shadows */
+            opacity: 0.85; /* Blend strength */
+            transition: background-color 0.4s ease;
+            background-color: transparent; /* Changed dynamically via JS */
+        }
+
+        .modification-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .car-details {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95rem;
+        }
+
+        .price-breakdown {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .price-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .price-item.total {
+            border-top: 2px solid #007bff;
+            padding-top: 1rem;
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .modifications-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .mod-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+        }
+
+        .mod-section h3 {
+            margin-top: 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .mod-section h3::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #007bff;
+            border-radius: 2px;
+        }
+
+        .mod-option label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: 4px;
+        }
+
+        .mod-option-info {
+            flex: 1;
+        }
+
+        .mod-option-name {
+            font-weight: 600;
+            color: #333;
+            display: block;
+        }
+
+        .mod-option-price {
+            font-weight: 700;
+            color: #28a745;
+        }
+
+        .car-selector {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            margin-bottom: 1.5rem;
+        }
+
+        .car-selector select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-add-cart-mod {
+            flex: 2;
+            padding: 1rem;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-reset {
+            flex: 1;
+            padding: 1rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* HEX COLOR SWATCHES */
+        .color-picker {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .color-option {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .color-swatch {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .color-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .color-option input[type="radio"]:checked + .color-swatch {
+            border-color: #333;
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #333;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #111 0%, #333 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        .spec-list {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .mod-section.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .modification-summary {
+            background: #e7f3ff;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+
+    <main>
+        <div class="hero">
+            <h2>Real-Time Car Tint Studio</h2>
+            <p>Modify color profiles on the exact same asset without reloading the page</p>
+        </div>
+
+        <div class="modifier-container">
+            <div>
+                <div class="car-selector">
+                    <label for="car-select" style="font-weight:600; display:block; margin-bottom:0.5rem;">Select Base Model</label>
+                    <select id="car-select">
+                        <option value="">Select a showroom vehicle...</option>
+                    </select>
+                </div>
+
+                <div id="no-car-selected" class="car-selector" style="text-align: center; padding: 2rem; color: #666;">
+                    <p>Select a baseline model configuration to activate the color mixing panel.</p>
+                </div>
+
+                <div id="modifications-panel" class="modifications-panel" style="display: none;">
+                    
+                    <div class="mod-section">
+                        <h3>Engine Modifications</h3>
+                        <div class="mod-option">
+                            <label><input type="radio" name="engine" value="base" checked> Standard Engine Block</label>
+                        </div>
+                        <div class="mod-option">
+                            <label><input type="radio" name="engine" value="sport"> Turbo Charged Tuning (+ ₹2,50,000)</label>
+                        </div>
+                    </div>
+
+                    <div class="mod-section" id="transmission-section">
+                        <h3>Transmission Conversion</h3>
+                        <div class="mod-option">
+                            <label><input type="radio" name="transmission" value="manual" checked> Manual Gearbox</label>
+                        </div>
+                        <div class="mod-option">
+                            <label><input type="radio" name="transmission" value="auto"> Dual-Clutch Automatic (+ ₹1,50,000)</label>
+                        </div>
+                    </div>
+
+                    <div class="mod-section" id="paint-section">
+                        <h3>Same-Asset Paint Studio</h3>
+                        <div style="margin-bottom: 1rem;">
+                            <span style="font-size:0.9rem; display:block; margin-bottom:0.5rem; font-weight:600;">Select Tone Surface Tint:</span>
+                            <div class="color-picker">
+                                <label class="color-option">
+                                    <input type="radio" name="paint" value="pearl-white" checked>
+                                    <div class="color-swatch" style="background-color: transparent; border: 1px dashed #ccc;" title="Clear Tint"></div>
+                                </label>
+                                <label class="color-option">
+                                    <input type="radio" name="paint" value="midnight-black">
+                                    <div class="color-swatch" style="background-color: #000000;" title="Jet Black Tint"></div>
+                                </label>
+                                <label class="color-option">
+                                    <input type="radio" name="paint" value="sapphire-blue">
+                                    <div class="color-swatch" style="background-color: #0033aa;" title="Sapphire Blue Tint"></div>
+                                </label>
+                                <label class="color-option">
+                                    <input type="radio" name="paint" value="crimson-red">
+                                    <div class="color-swatch" style="background-color: #cc0000;" title="Crimson Red Tint"></div>
+                                </label>
+                                <label class="color-option">
+                                    <input type="radio" name="paint" value="electric-green">
+                                    <div class="color-swatch" style="background-color: #00cc44;" title="Electric Green Tint"></div>
+                                </label>
+                                <label class="color-option">
+                                    <input type="radio" name="paint" value="gold-metallic">
+                                    <div class="color-swatch" style="background-color: #d4af37;" title="Gold Coat Tint"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span style="font-size:0.9rem; display:block; margin-bottom:0.5rem; font-weight:600;">Coat Polish Style:</span>
+                            <div class="mod-option">
+                                <label><input type="radio" name="paint-type" value="metallic" checked> Gloss Metallic Standard</label>
+                            </div>
+                            <div class="mod-option">
+                                <label><input type="radio" name="paint-type" value="matte"> Satin Matte Coat (+ ₹1,00,000)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mod-section" id="tech-section">
+                        <h3>Option Addons Suite</h3>
+                        <div class="mod-option">
+                            <label><input type="checkbox" name="tech" value="sunroof"> Panoramic Sunroof Option (+ ₹2,00,000)</label>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button type="button" class="btn-reset" id="btn-reset-mod">Reset Config</button>
+                        <button type="button" class="btn-add-cart-mod" id="btn-add-cart-mod">Add To Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="car-preview">
+                    <div id="preview-content" style="display: none;">
+                        
+                        <div class="car-image-container">
+                            <div class="modification-badge" id="mod-badge" style="display: none;">
+                                <span id="mod-count">0</span> Add-ons Added
+                            </div>
+                            <img id="preview-image" src="" alt="Dynamic Modification Target Asset">
+                            <div class="color-overlay" id="image-color-overlay"></div>
+                        </div>
+
+                        <div class="car-details">
+                            <h3 id="preview-name">Vehicle Model</h3>
+                            <span class="category-badge" id="category-badge">Category</span>
+                            <p id="preview-description" style="margin-top:0.5rem; font-size:0.9rem; color:#555;"></p>
+                            <div class="spec-list" id="preview-specs" style="margin-top:1rem;"></div>
+                        </div>
+
+                        <div class="modification-summary" id="modification-summary" style="display: none;">
+                            <strong>Summary Configuration:</strong>
+                            <div id="modification-list"></div>
+                        </div>
+
+                        <div class="price-breakdown">
+                            <h4>Real-Time Pricing Matrix</h4>
+                            <div class="price-item"><span>Showroom Retail Base Price</span><span id="price-base">₹0</span></div>
+                            <div id="price-items-container"></div>
+                            <div class="price-item total"><span>Final Configured Total</span><span id="price-total">₹0</span></div>
+                        </div>
+                    </div>
+
+                    <div id="preview-empty" style="text-align: center; padding: 4rem 0; color: #aaa;">
+                        <p>No baseline car chosen from options menu matrix.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="./main.js"></script>
+</body>
+</html>
