@@ -6,10 +6,7 @@ const mongoose = require('mongoose');
 
 const app = express();
 app.use(express.json());
-app.use(cors({
-  origin: 'https://cars-inventory.netlify.app',
-  credentials: true
-}));
+app.use(cors({origin: "https://cars-inventory.netlify.app"}));
 
 // Guard clause for missing environment variable
 if (!process.env.MONGODB_URL) {
