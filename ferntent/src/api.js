@@ -12,7 +12,7 @@ async function handleResponse(res) {
 
 export async function registerUser(payload) {
   // payload: { name, email, password }
-  const res = await fetch('http://localhost:5500/register', {
+  const res = await fetch('https://my-web-89so.onrender.com', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -21,7 +21,7 @@ export async function registerUser(payload) {
 }
 
 export async function loginUser(email, password) {
-  const res = await fetch('http://localhost:5500/login', {
+  const res = await fetch('https://my-web-89so.onrender.com/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
