@@ -7,6 +7,7 @@ import About from './about';
 import Gallery from './gallery';
 import Contact from './contact';
 import Signin from './signin';
+import CarDetail from './CarDetail';
 import './App.css';
 
 function App() {
@@ -17,11 +18,12 @@ function App() {
           <Header />
           <main className="main-content">
             <Routes>
-              <Route path="/"          element={<Home />} />
+              <Route path="/" element={<Home />} />
               <Route path="/inventory" element={<Gallery />} />
-              <Route path="/about"     element={<About />} />
-              <Route path="/contact"   element={<Contact />} />
-              <Route path="/signin"    element={<Signin />} />
+              <Route path="/car/:id" element={<CarDetail />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/signin" element={<Signin />} />
             </Routes>
           </main>
           <Footer />
