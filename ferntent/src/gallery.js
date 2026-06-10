@@ -1,140 +1,179 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { CARS } from './cars';
 
-// Real car images via loremflickr (free, no API key, related to each car type)
-const CARS = [
-  {
-    id: 1,
-    name: 'Maruti Swift ZXi+',
-    price: '₹ 9,50,000',
-    year: 2024,
-    mileage: '9,500 km',
-    type: 'Hatchback',
-    image: 'https://loremflickr.com/640/420/maruti,swift,hatchback?lock=11',
-    description: 'Popular city hatchback with peppy performance and efficient mileage.',
-  },
-  {
-    id: 2,
-    name: 'Tata Nexon XZ+',
-    price: '₹ 12,80,000',
-    year: 2024,
-    mileage: '11,200 km',
-    type: 'SUV',
-    image: 'https://loremflickr.com/640/420/tata,nexon,suv?lock=22',
-    description: 'Compact SUV with high safety ratings, premium interior, and smart features.',
-  },
-  {
-    id: 3,
-    name: 'Mahindra Thar AX',
-    price: '₹ 16,20,000',
-    year: 2025,
-    mileage: '7,800 km',
-    type: 'Off-Road',
-    image: 'https://loremflickr.com/640/420/jeep,offroad,4x4?lock=33',
-    description: 'Rugged off-roader with a bold design and excellent terrain capability.',
-  },
-  {
-    id: 4,
-    name: 'Hyundai Creta SX',
-    price: '₹ 14,50,000',
-    year: 2024,
-    mileage: '13,600 km',
-    type: 'SUV',
-    image: 'https://loremflickr.com/640/420/hyundai,suv,crossover?lock=44',
-    description: 'Stylish mid-size SUV offering spacious comfort and modern connectivity.',
-  },
-  {
-    id: 5,
-    name: 'Kia Seltos GTX',
-    price: '₹ 15,90,000',
-    year: 2024,
-    mileage: '10,300 km',
-    type: 'SUV',
-    image: 'https://loremflickr.com/640/420/kia,luxury,suv?lock=55',
-    description: 'Feature-rich SUV with a premium cabin and strong road presence.',
-  },
-  {
-    id: 6,
-    name: 'Toyota Innova Crysta VX',
-    price: '₹ 21,80,000',
-    year: 2024,
-    mileage: '18,900 km',
-    type: 'MPV',
-    image: 'https://loremflickr.com/640/420/toyota,minivan,mpv?lock=66',
-    description: 'Spacious MPV ideal for families with refined comfort and reliability.',
-  },
-];
-
-// Fallback if image fails to load
-function CarImage({ src, alt }) {
-  const [failed, setFailed] = useState(false);
-  return failed
-    ? (
-      <div style={{
-        width: '100%', minHeight: '200px', borderRadius: '18px',
-        background: 'linear-gradient(135deg, #0f172a, #1e293b)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: '#38bdf8', fontSize: '1rem', fontWeight: '600'
-      }}>
-        {alt}
-      </div>
-    )
-    : <img src={src} alt={alt} onError={() => setFailed(true)} />;
-}
-
-function Gallery() {
+export default function Gallery() {
+  const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('All');
+  const [sort, setSort]     = useState('default');
+
   const types = ['All', ...new Set(CARS.map(c => c.type))];
-  const shown  = filter === 'All' ? CARS : CARS.filter(c => c.type === filter);
+
+  const shown = useMemo(() => {
+    let list = [...CARS];
+
+    // Filter by type
+    if (filter !== 'All') list = list.filter(c => c.type === filter);
+
+    // Filter by search
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(c =>
+        c.name.toLowerCase().includes(q) ||
+        c.type.toLowerCase().includes(q) ||
+        c.fuel.toLowerCase().includes(q)
+      );
+    }
+
+    // Sort
+    if (sort === 'price-asc') {
+      list.sort((a, b) => parseFloat(a.price.replace(/[^0-9.]/g, '')) - parseFloat(b.price.replace(/[^0-9.]/g, '')));
+    } else if (sort === 'price-desc') {
+      list.sort((a, b) => parseFloat(b.price.replace(/[^0-9.]/g, '')) - parseFloat(a.price.replace(/[^0-9.]/g, '')));
+    } else if (sort === 'year-new') {
+      list.sort((a, b) => b.year - a.year);
+    }
+
+    return list;
+  }, [filter, search, sort]);
 
   return (
-    <section className="page inventory-page">
-      <h1>Inventory</h1>
-      <p>Explore our current selection of premium cars. Each vehicle is inspected and ready for a test drive.</p>
+    <section className="page" style={{ background: 'none', border: 'none', padding: 0 }}>
 
-      {/* Filter pills */}
-      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '20px' }}>
-        {types.map(t => (
-          <button
-            key={t}
-            onClick={() => setFilter(t)}
+      {/* Header */}
+      <div className="inventory-header">
+        <div className="section-label">🚘 Full Collection</div>
+        <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(2rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: 8 }}>
+          Vehicle Inventory
+        </h1>
+        <p style={{ color: 'var(--text-secondary)', maxWidth: 560 }}>
+          Browse our complete selection of {CARS.length} premium vehicles. Click any car to explore full specs and details.
+        </p>
+
+        {/* Controls */}
+        <div className="inventory-controls">
+          {/* Search */}
+          <div className="search-wrap">
+            <span className="search-icon">🔍</span>
+            <input
+              type="text"
+              placeholder="Search by name, type, fuel…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+
+          {/* Sort */}
+          <select
+            value={sort}
+            onChange={e => setSort(e.target.value)}
             style={{
-              padding: '7px 18px',
-              borderRadius: '999px',
-              border: '1px solid',
-              borderColor: filter === t ? '#38bdf8' : 'rgba(148,163,184,0.25)',
-              background:   filter === t ? 'rgba(56,189,248,0.15)' : 'transparent',
-              color:        filter === t ? '#38bdf8' : '#94a3b8',
-              cursor: 'pointer', fontWeight: '600', fontSize: '0.87rem',
-              transition: 'all 0.2s'
+              padding: '11px 16px', background: 'var(--bg-card)',
+              border: '1px solid var(--border)', borderRadius: 999,
+              color: 'var(--text-primary)', fontSize: '0.88rem',
+              fontWeight: 600, outline: 'none', cursor: 'pointer',
+              fontFamily: 'inherit'
             }}
           >
-            {t}
-          </button>
-        ))}
+            <option value="default">Sort: Default</option>
+            <option value="price-asc">Price: Low → High</option>
+            <option value="price-desc">Price: High → Low</option>
+            <option value="year-new">Year: Newest First</option>
+          </select>
+        </div>
+
+        {/* Filter pills */}
+        <div className="filter-pills" style={{ marginTop: 16 }}>
+          {types.map(t => (
+            <button
+              key={t}
+              className={`filter-pill${filter === t ? ' active' : ''}`}
+              onClick={() => setFilter(t)}
+            >
+              {t}
+              {t !== 'All' && (
+                <span style={{ marginLeft: 6, opacity: 0.6, fontSize: '0.78rem' }}>
+                  ({CARS.filter(c => c.type === t).length})
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="inventory-grid">
-        {shown.map(car => (
-          <article key={car.id} className="car-card">
-            <CarImage src={car.image} alt={car.name} />
-            <div className="car-card-body">
-              <div className="car-meta">
-                <span>{car.year}</span>
-                <span className="badge">{car.type}</span>
-              </div>
-              <h3>{car.name}</h3>
-              <p className="car-price">{car.price}</p>
-              <p>{car.description}</p>
-              <div className="car-details">
-                <span>{car.mileage}</span>
-                <button className="button small">Request Info</button>
-              </div>
-            </div>
-          </article>
-        ))}
+      {/* Results count */}
+      <div style={{ marginBottom: 24, color: 'var(--text-muted)', fontSize: '0.87rem', fontWeight: 600 }}>
+        Showing <span style={{ color: 'var(--accent)' }}>{shown.length}</span> of {CARS.length} vehicles
       </div>
+
+      {/* Grid */}
+      {shown.length === 0 ? (
+        <div className="no-results">
+          <div className="no-results-icon">🔍</div>
+          <h3>No vehicles found</h3>
+          <p>Try adjusting your search or filter.</p>
+          <button
+            onClick={() => { setSearch(''); setFilter('All'); }}
+            className="btn btn-secondary btn-sm"
+            style={{ marginTop: 16 }}
+          >
+            Clear Filters
+          </button>
+        </div>
+      ) : (
+        <div className="cars-grid">
+          {shown.map(car => (
+            <Link to={`/car/${car.id}`} key={car.id} className="car-card">
+              <div className="car-card-img-wrap">
+                <img
+                  src={car.image}
+                  alt={car.name}
+                  loading="lazy"
+                  onError={e => { e.target.src = `https://picsum.photos/seed/car${car.id}/640/420`; }}
+                />
+                <div className="car-card-badge">{car.badge}</div>
+                <div className="car-card-type">
+                  <span className="badge">{car.type}</span>
+                </div>
+              </div>
+
+              <div className="car-card-body">
+                <div className="car-card-meta">
+                  <span className="car-card-year">{car.year}</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>•</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{car.fuel}</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>•</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{car.transmission.split('/')[0].trim()}</span>
+                </div>
+                <div className="car-card-name">{car.name}</div>
+                <div className="car-card-desc">{car.description}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className="car-card-price">{car.price}</div>
+                  <span style={{
+                    fontSize: '0.75rem', fontWeight: 700, padding: '4px 10px',
+                    borderRadius: 999, background: `${car.accentColor}18`,
+                    color: car.accentColor, border: `1px solid ${car.accentColor}30`
+                  }}>
+                    {car.power}
+                  </span>
+                </div>
+                {car.emi && (
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: -6 }}>
+                    EMI from <span style={{ color: '#34d399', fontWeight: 700 }}>{car.emi}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="car-card-footer">
+                <span className="car-card-mileage">🛣️ {car.mileage}</span>
+                <span style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.85rem' }}>
+                  View Details →
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
-
-export default Gallery;

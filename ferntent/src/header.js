@@ -1,56 +1,62 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 
-function Header() {
+export default function Header() {
   const { user, logout } = useAuth();
   const [open, setOpen]   = useState(false);
-  const dropRef           = useRef(null);
-  const navigate          = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+  const dropRef = useRef(null);
+  const navigate = useNavigate();
 
-  // Close dropdown when clicking anywhere outside it
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   useEffect(() => {
     function onClickOutside(e) {
-      if (dropRef.current && !dropRef.current.contains(e.target)) {
-        setOpen(false);
-      }
+      if (dropRef.current && !dropRef.current.contains(e.target)) setOpen(false);
     }
     document.addEventListener('mousedown', onClickOutside);
     return () => document.removeEventListener('mousedown', onClickOutside);
   }, []);
-
+\
   function handleLogout() {
     logout();
     setOpen(false);
     navigate('/');
   }
 
-  // Build initials from user's name (e.g. "Dhyey Movaliya" → "DM")
   const initials = user
     ? user.name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
     : '';
 
-  // Format join date
   const joinDate = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long' })
     : 'Member';
 
   return (
-    <header className="header">
-      <div className="brand">DriveLine Motors</div>
+    <header className="header" style={{ boxShadow: scrolled ? '0 4px 32px rgba(0,0,0,0.4)' : 'none' }}>
+      {/* Brand */}
+      <Link to="/" className="header-brand">
+        <div className="brand-icon">🚗</div>
+        <span className="brand-name">DriveLine Motors</span>
+      </Link>
 
-      <nav>
-        <Link to="/">Home</Link>
-        <Link to="/inventory">Inventory</Link>
-        <Link to="/about">About</Link>
-        <Link to="/contact">Contact</Link>
+      {/* Nav */}
+      <nav className="header-nav">
+        <NavLink to="/"          end className={({ isActive }) => isActive ? 'active' : ''}>Home</NavLink>
+        <NavLink to="/inventory"     className={({ isActive }) => isActive ? 'active' : ''}>Inventory</NavLink>
+        <NavLink to="/about"         className={({ isActive }) => isActive ? 'active' : ''}>About</NavLink>
+        <NavLink to="/contact"       className={({ isActive }) => isActive ? 'active' : ''}>Contact</NavLink>
 
         {user ? (
-          /* ── Logged-in: show avatar + dropdown ── */
           <div className="acct-wrap" ref={dropRef}>
             <button
               className="acct-avatar-btn"
-              onClick={() => setOpen(prev => !prev)}
+              onClick={() => setOpen(p => !p)}
               title={`Signed in as ${user.name}`}
               aria-label="Account menu"
             >
@@ -59,28 +65,34 @@ function Header() {
 
             {open && (
               <div className="acct-dropdown" role="menu">
-                {/* User info header */}
                 <div className="acct-info">
                   <div className="acct-avatar-lg">{initials}</div>
-                  <div className="acct-text">
-                    <span className="acct-name">{user.name}</span>
-                    <span className="acct-email">{user.email}</span>
+                  <div>
+                    <div className="acct-name">{user.name}</div>
+                    <div className="acct-email">{user.email}</div>
                   </div>
                 </div>
 
                 <div className="acct-divider" />
 
-                {/* Details */}
                 <div className="acct-detail-row">
                   <span className="acct-detail-label">Joined</span>
                   <span className="acct-detail-val">{joinDate}</span>
                 </div>
                 <div className="acct-detail-row">
                   <span className="acct-detail-label">Email</span>
-                  <span className="acct-detail-val">{user.email}</span>
+                  <span className="acct-detail-val" style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</span>
                 </div>
 
                 <div className="acct-divider" />
+
+                <Link
+                  to="/inventory"
+                  onClick={() => setOpen(false)}
+                  style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '10px', background: 'rgba(56,189,248,0.1)', color: '#38bdf8', fontWeight: 700, fontSize: '0.9rem', marginBottom: '10px' }}
+                >
+                  Browse Inventory
+                </Link>
 
                 <button className="acct-signout" onClick={handleLogout}>
                   Sign Out
@@ -89,12 +101,9 @@ function Header() {
             )}
           </div>
         ) : (
-          /* ── Logged-out: show Sign In link ── */
-          <Link to="/signin" className="signin-nav-link">Customer Sign In</Link>
+          <Link to="/signin" className="nav-signin">Sign In</Link>
         )}
       </nav>
     </header>
   );
 }
-
-export default Header;
