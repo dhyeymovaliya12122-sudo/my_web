@@ -13970,7 +13970,7 @@ progress {
   color: #919eab;
 }
 .blockquote-footer::before {
-  content: "— ";
+  content: "-";
 }
 
 .img-fluid {

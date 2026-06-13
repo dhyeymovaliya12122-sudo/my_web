@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="100%" height="100%" fill="#000" />
+  <g fill="#fff">
+    <rect x="40" y="360" width="432" height="40" rx="8" fill="#c8102e" />
+    <path d="M56 320 h400 v-72 a52 52 0 0 0 -52 -52 h-236 a52 52 0 0 0 -52 52 v72 z" fill="#fff"/>
+    <text x="256" y="200" font-size="48" font-family="Arial" fill="#c8102e" text-anchor="middle" dominant-baseline="middle">CAR DEALER</text>
+  </g>
+</svg>

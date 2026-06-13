@@ -13,14 +13,15 @@ export default function CarDetail() {
   const [imgError, setImgError] = useState(false);
   const [inquirySent, setInquirySent] = useState(false);
   const [inquiryLoading, setInquiryLoading] = useState(false);
+  const [inquiryError, setInquiryError] = useState(false);
 
   if (!car) {
     return (
       <div style={{ textAlign: 'center', padding: '80px 20px' }}>
-        <div style={{ fontSize: '3rem', marginBottom: 16 }}>🚫</div>
+        <div style={{ fontSize: '3rem', marginBottom: 16 }}></div>
         <h2 style={{ fontFamily: "'Outfit', sans-serif", marginBottom: 12 }}>Car Not Found</h2>
         <p style={{ color: 'var(--text-muted)', marginBottom: 24 }}>This vehicle doesn't exist in our inventory.</p>
-        <Link to="/inventory" className="btn btn-primary">← Back to Inventory</Link>
+        <Link to="/inventory" className="btn btn-primary">Back to Inventory</Link>
       </div>
     );
   }
@@ -45,7 +46,7 @@ export default function CarDetail() {
     }
     setInquiryLoading(true);
     try {
-      await fetch(`${API}/inquiry`, {
+      const res = await fetch(`${API}/inquiry`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -54,9 +55,17 @@ export default function CarDetail() {
           message: `I am interested in the ${car.name} (${car.year}) priced at ${car.price}. Please contact me with more details and availability.`
         })
       });
-      setInquirySent(true);
-    } catch {
-      setInquirySent(true); // still show success for UX
+      if (res.ok) {
+        setInquirySent(true);
+        setInquiryError(false);
+      } else {
+        setInquirySent(false);
+        setInquiryError(true);
+      }
+    } catch (error) {
+      console.error('Failed to send inquiry', error);
+      setInquirySent(false);
+      setInquiryError(true);
     } finally {
       setInquiryLoading(false);
     }
@@ -94,10 +103,10 @@ export default function CarDetail() {
             gap: 12, marginTop: 16
           }}>
             {[
-              { icon: '⚡', label: 'Power', val: car.power },
-              { icon: '🔧', label: 'Engine', val: car.engine.split(' ')[0] },
-              { icon: '⛽', label: 'Fuel', val: car.fuel.split('/')[0].trim() },
-              { icon: '💺', label: 'Seats', val: car.seating },
+              { icon: '', label: 'Power', val: car.power },
+                { icon: '', label: 'Engine', val: car.engine.split(' ')[0] },
+                { icon: '', label: 'Fuel', val: car.fuel.split('/')[0].trim() },
+                { icon: '', label: 'Seats', val: car.seating },
             ].map(s => (
               <div key={s.label} style={{
                 background: 'var(--bg-card)', border: '1px solid var(--border)',
@@ -145,19 +154,19 @@ export default function CarDetail() {
           <div className="detail-quick-stats">
             <div className="detail-stat">
               <div className="detail-stat-label">Mileage</div>
-              <div className="detail-stat-value">🛣️ {car.mileage}</div>
+              <div className="detail-stat-value">{car.mileage}</div>
             </div>
             <div className="detail-stat">
               <div className="detail-stat-label">Transmission</div>
-              <div className="detail-stat-value">⚙️ {car.transmission.split('/')[0].trim()}</div>
+              <div className="detail-stat-value">{car.transmission.split('/')[0].trim()}</div>
             </div>
             <div className="detail-stat">
               <div className="detail-stat-label">Color</div>
-              <div className="detail-stat-value">🎨 {car.color}</div>
+              <div className="detail-stat-value">{car.color}</div>
             </div>
             <div className="detail-stat">
               <div className="detail-stat-label">Fuel</div>
-              <div className="detail-stat-value">⛽ {car.fuel.split('/')[0].trim()}</div>
+              <div className="detail-stat-value">{car.fuel.split('/')[0].trim()}</div>
             </div>
           </div>
 
@@ -167,7 +176,17 @@ export default function CarDetail() {
               background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.3)',
               borderRadius: 12, padding: '14px 16px', color: '#34d399', fontWeight: 600, fontSize: '0.9rem'
             }}>
-              ✅ Inquiry sent! Our team will contact you soon.
+              Inquiry sent! Our team will contact you soon.
+            </div>
+          )}
+
+          {/* Inquiry error */}
+          {inquiryError && (
+            <div style={{
+              background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+              borderRadius: 12, padding: '14px 16px', color: '#ef4444', fontWeight: 600, fontSize: '0.9rem'
+            }}>
+              Failed to send inquiry. Please try again or contact us directly.
             </div>
           )}
 
@@ -179,10 +198,10 @@ export default function CarDetail() {
               disabled={inquiryLoading || inquirySent}
               style={{ flex: 1 }}
             >
-              {inquiryLoading ? '⏳ Sending…' : inquirySent ? '✅ Inquiry Sent' : '📩 Send Inquiry'}
+              {inquiryLoading ? 'Sending...' : inquirySent ? 'Inquiry Sent' : 'Send Inquiry'}
             </button>
             <Link to="/contact" className="btn btn-secondary btn-lg" style={{ flex: 1, textAlign: 'center' }}>
-              📅 Book Test Drive
+              Book Test Drive
             </Link>
           </div>
 
@@ -196,7 +215,7 @@ export default function CarDetail() {
 
       {/* Highlights */}
       <div className="highlights-section">
-        <h3>✨ Key Highlights</h3>
+          <h3>Key Highlights</h3>
         <div className="highlights-grid">
           {car.highlights.map(h => (
             <div key={h} className="highlight-item">{h}</div>
@@ -206,7 +225,7 @@ export default function CarDetail() {
 
       {/* Full Specifications */}
       <div className="spec-section">
-        <h3>📋 Full Specifications</h3>
+        <h3>Full Specifications</h3>
         <div className="spec-grid">
           {specs.map(s => (
             <div key={s.key} className="spec-row">
@@ -221,7 +240,7 @@ export default function CarDetail() {
       {related.length > 0 && (
         <div style={{ marginTop: 8 }}>
           <div style={{ marginBottom: 24 }}>
-            <div className="section-label">🔄 Similar Vehicles</div>
+            <div className="section-label">Similar Vehicles</div>
             <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.4rem', fontWeight: 800 }}>
               More {car.type}s You May Like
             </h3>
@@ -239,9 +258,9 @@ export default function CarDetail() {
                   <div className="car-card-name">{rc.name}</div>
                   <div className="car-card-price">{rc.price}</div>
                 </div>
-                <div className="car-card-footer">
-                  <span className="car-card-mileage">🛣️ {rc.mileage}</span>
-                  <span style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.85rem' }}>View →</span>
+                  <div className="car-card-footer">
+                  <span className="car-card-mileage">{rc.mileage}</span>
+                  <span style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.85rem' }}>View Details</span>
                 </div>
               </Link>
             ))}

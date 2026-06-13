@@ -7,7 +7,7 @@ export default function Footer() {
         {/* Brand */}
         <div className="footer-brand">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-            <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg,#38bdf8,#818cf8)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}>🚗</div>
+            <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg,#38bdf8,#818cf8)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }} />
             <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: '1.1rem', color: '#f1f5f9' }}>DriveLine Motors</span>
           </div>
           <p>Your trusted destination for premium new and certified pre-owned vehicles. Quality, transparency, and service — always.</p>
@@ -33,10 +33,10 @@ export default function Footer() {
         {/* Contact Info */}
         <div className="footer-col">
           <h4>Contact</h4>
-          <a href="tel:+919876543210">📞 +91 98765 43210</a>
-          <a href="mailto:sales@drivelinemotors.in">✉️ sales@drivelinemotors.in</a>
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', display: 'block', paddingTop: 4 }}>📍 456 MG Road, Mumbai</span>
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.87rem', display: 'block', paddingTop: 4 }}>🕒 Mon–Sat: 9am – 7pm</span>
+          <a href="tel:+919876543210">+91 98765 43210</a>
+          <a href="mailto:sales@drivelinemotors.in">sales@drivelinemotors.in</a>
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', display: 'block', paddingTop: 4 }}>456 MG Road, Mumbai</span>
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.87rem', display: 'block', paddingTop: 4 }}>Mon-Sat: 9am - 7pm</span>
         </div>
       </div>
 

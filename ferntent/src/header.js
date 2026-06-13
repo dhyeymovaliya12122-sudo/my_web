@@ -22,7 +22,7 @@ export default function Header() {
     document.addEventListener('mousedown', onClickOutside);
     return () => document.removeEventListener('mousedown', onClickOutside);
   }, []);
-\
+
   function handleLogout() {
     logout();
     setOpen(false);
@@ -41,7 +41,7 @@ export default function Header() {
     <header className="header" style={{ boxShadow: scrolled ? '0 4px 32px rgba(0,0,0,0.4)' : 'none' }}>
       {/* Brand */}
       <Link to="/" className="header-brand">
-        <div className="brand-icon">🚗</div>
+        <div className="brand-icon"></div>
         <span className="brand-name">DriveLine Motors</span>
       </Link>
 

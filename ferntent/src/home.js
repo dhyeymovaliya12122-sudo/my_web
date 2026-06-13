@@ -4,14 +4,6 @@ import { CARS } from './cars';
 
 const FEATURED_IDS = [1, 2, 3];
 
-function AnimatedCounter({ target, suffix = '' }) {
-  return (
-    <span>
-      {target}{suffix}
-    </span>
-  );
-}
-
 export default function Home() {
   const { user } = useAuth();
   const featured = CARS.filter(c => FEATURED_IDS.includes(c.id));
@@ -29,13 +21,13 @@ export default function Home() {
                 color: '#00f2fe', fontSize: '0.82rem', fontWeight: 700,
                 padding: '5px 14px', borderRadius: 999
               }}>
-                👋 Welcome back, {user.name.split(' ')[0]}!
+                Welcome back, {user.name.split(' ')[0]}!
               </span>
             </div>
           )}
 
           <div className="hero-eyebrow">
-            <span>⚡</span> India's Premium Car Marketplace
+            India's Premium Car Marketplace
           </div>
 
           <h1 className="hero-title">
@@ -49,10 +41,10 @@ export default function Home() {
 
           <div className="hero-actions">
             <Link to="/inventory" className="btn btn-primary btn-lg">
-              🚗 Browse Inventory
+              Browse Inventory
             </Link>
             <Link to="/contact" className="btn btn-secondary btn-lg">
-              📅 Book Test Drive
+              Book Test Drive
             </Link>
             {!user && (
               <Link to="/signin" className="btn btn-ghost btn-lg">

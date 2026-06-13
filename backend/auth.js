@@ -1,9 +1,15 @@
+// DEPRECATED - This file has been replaced by server.js
+// All authentication routes have been consolidated into server.js
+// This file is kept for historical reference only and is NOT imported anywhere
+
+// See server.js /register and /login routes for the current implementation
+
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { User_model } = require('./db/user');
+const { User } = require('./db/user');
 const router = express.Router();
 
-// POST /register — save a new user to MongoDB
+// POST /register - save a new user to MongoDB
 router.post('/register', async (req, res) => {
   const { name, email, password, username } = req.body;
   const userName = name || username;
@@ -26,7 +32,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// POST /login — authenticate existing user
+// POST /login - authenticate existing user
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {

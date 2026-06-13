@@ -108,7 +108,7 @@ export default function Signin() {
             width: 52, height: 52, borderRadius: 14, margin: '0 auto 12px',
             background: 'linear-gradient(135deg, #38bdf8, #818cf8)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem'
-          }}>🚗</div>
+          }}> </div>
           <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: '1rem', color: '#94a3b8' }}>
             DriveLine Motors
           </div>
@@ -126,7 +126,7 @@ export default function Signin() {
 
         {/* Title */}
         <h2 className="signin-title">
-          {tab === 'login' ? 'Welcome Back 👋' : 'Create Account ✨'}
+          {tab === 'login' ? 'Welcome Back' : 'Create Account'}
         </h2>
         <p className="signin-subtitle">
           {tab === 'login'
@@ -136,16 +136,16 @@ export default function Signin() {
 
         {/* DB Status */}
         {dbOnline === null && (
-          <div className="status-banner checking">⏳ Checking server connection…</div>
+          <div className="status-banner checking">Checking server connection...</div>
         )}
         {dbOnline === false && (
           <div className="status-banner offline">
-            <span>⚠️ Backend offline — start server first.</span>
+            <span>Backend offline - start server first.</span>
             <button className="retry-btn" onClick={checkHealth}>Retry</button>
           </div>
         )}
         {dbOnline === true && (
-          <div className="status-banner online">✅ Server & database connected</div>
+          <div className="status-banner online">Server & database connected</div>
         )}
 
         {/* Message */}
@@ -186,8 +186,8 @@ export default function Signin() {
 
           <button type="submit" className="signin-btn" disabled={loading}>
             {loading
-              ? (tab === 'register' ? '⏳ Creating account…' : '⏳ Signing in…')
-              : (tab === 'register' ? '🚀 Create Account' : '🔐 Sign In')}
+              ? (tab === 'register' ? 'Creating account...' : 'Signing in...')
+              : (tab === 'register' ? 'Create Account' : 'Sign In')}
           </button>
         </form>
 

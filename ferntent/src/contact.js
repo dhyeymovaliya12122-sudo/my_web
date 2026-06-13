@@ -28,7 +28,7 @@ export default function Contact() {
       const res = await fetch(`${API}/inquiry`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: form.name, email: form.email, message: form.message }),
+        body: JSON.stringify({ name: form.name, email: form.email, phone: form.phone, message: form.message }),
       });
       const data = await res.json();
 
@@ -50,7 +50,7 @@ export default function Contact() {
 
       {/* Page Header */}
       <div style={{ marginBottom: 36 }}>
-        <div className="section-label">📬 Get In Touch</div>
+      <div className="section-label">Get In Touch</div>
         <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 3vw, 2.6rem)', fontWeight: 900, marginBottom: 8 }}>
           Contact DriveLine Motors
         </h1>
@@ -66,10 +66,10 @@ export default function Contact() {
           <h3>Our Information</h3>
 
           {[
-            { icon: '📍', label: 'Address', value: '456 MG Road, Andheri West\nMumbai — 400053' },
-            { icon: '📞', label: 'Phone', value: <a href="tel:+919876543210">+91 98765 43210</a> },
-            { icon: '✉️', label: 'Email', value: <a href="mailto:sales@drivelinemotors.in">sales@drivelinemotors.in</a> },
-            { icon: '🕒', label: 'Hours', value: 'Mon–Sat: 9am – 7pm\nSun: 10am – 5pm' },
+            { icon: '', label: 'Address', value: '456 MG Road, Andheri West\nMumbai - 400053' },
+            { icon: '', label: 'Phone', value: <a href="tel:+919876543210">+91 98765 43210</a> },
+            { icon: '', label: 'Email', value: <a href="mailto:sales@drivelinemotors.in">sales@drivelinemotors.in</a> },
+            { icon: '', label: 'Hours', value: 'Mon-Sat: 9am - 7pm\nSun: 10am - 5pm' },
           ].map(item => (
             <div key={item.label} className="contact-item">
               <div className="contact-item-icon">{item.icon}</div>
@@ -87,7 +87,7 @@ export default function Contact() {
             border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexDirection: 'column', gap: 8
           }}>
-            <div style={{ fontSize: '2rem' }}>🗺️</div>
+            <div style={{ fontSize: '2rem' }}> </div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>456 MG Road, Mumbai</div>
           </div>
         </div>
@@ -98,7 +98,7 @@ export default function Contact() {
 
           {user && (
             <div style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.2)', borderRadius: 10, padding: '10px 14px', marginBottom: 18, fontSize: '0.85rem', color: '#34d399', fontWeight: 600 }}>
-              ✅ Signed in as <strong>{user.name}</strong> — name & email pre-filled.
+              Signed in as <strong>{user.name}</strong> - name & email pre-filled.
             </div>
           )}
 
@@ -149,7 +149,7 @@ export default function Contact() {
 
             <button type="submit" className="btn btn-primary" disabled={loading}
               style={{ width: '100%', padding: '14px', fontSize: '1rem', justifyContent: 'center' }}>
-              {loading ? '⏳ Sending…' : '📤 Send Message'}
+              {loading ? 'Sending...' : 'Send Message'}
             </button>
           </form>
         </div>
