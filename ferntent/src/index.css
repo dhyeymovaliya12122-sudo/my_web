@@ -1,6 +1,16 @@
-/* Reset — full styles live in App.css */
+/* i think you need this reset or everything looks weird */
 * {
-  margin: 0;
+    margin: 0;
   padding: 0;
-  box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+/* i added this because the body had some extra space */
+body {
+  margin : 0px;
+  padding: 0px;
+}
+
+html {
+  margin: 0;
 }

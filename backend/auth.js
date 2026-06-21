@@ -4,23 +4,27 @@
 
 // See server.js /register and /login routes for the current implementation
 
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const { User } = require('./db/user');
-const router = express.Router();
+var express = require('express');
+var bcrypt = require('bcryptjs');
+var dbUser = require('./db/user');
+var User = dbUser.User;
+var router = express.Router();
 
 // POST /register - save a new user to MongoDB
-router.post('/register', async (req, res) => {
-  const { name, email, password, username } = req.body;
-  const userName = name || username;
+router.post('/register', async function(req, res) {
+  var name = req.body.name;
+  var email = req.body.email;
+  var password = req.body.password;
+  var username = req.body.username;
+  var userName = name || username;
 
   if (!userName || !email || !password) {
     return res.status(400).json({ success: false, message: 'Name, email, and password are required.' });
   }
 
   try {
-    const hashed = await bcrypt.hash(password, 10);
-    const user = new User_model({ name: userName, email, password: hashed });
+    var hashed = await bcrypt.hash(password, 10);
+    var user = new User_model({ name: userName, email: email, password: hashed });
     await user.save();
     res.status(201).json({ success: true, message: 'User registered!', user: { name: user.name, email: user.email } });
   } catch (err) {
@@ -33,19 +37,21 @@ router.post('/register', async (req, res) => {
 });
 
 // POST /login - authenticate existing user
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+router.post('/login', async function(req, res) {
+  var email = req.body.email;
+  var password = req.body.password;
+
   if (!email || !password) {
     return res.status(400).json({ success: false, message: 'Email and password are required.' });
   }
 
   try {
-    const user = await User_model.findOne({ email });
+    var user = await User_model.findOne({ email: email });
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
-    const match = await bcrypt.compare(password, user.password);
+    var match = await bcrypt.compare(password, user.password);
     if (!match) {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }

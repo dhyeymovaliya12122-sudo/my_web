@@ -1,179 +1,196 @@
-import { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CARS } from './cars';
 
 export default function Gallery() {
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('All');
-  const [sort, setSort]     = useState('default');
+  var searchState = useState('');
+  var search = searchState[0];
+  var setSearch = searchState[1];
 
-  const types = ['All', ...new Set(CARS.map(c => c.type))];
+  var filterState = useState('All');
+  var filter = filterState[0];
+  var setFilter = filterState[1];
 
-  const shown = useMemo(() => {
-    let list = [...CARS];
+  var sortState = useState('default');
+  var sort = sortState[0];
+  var setSort = sortState[1];
 
-    // Filter by type
-    if (filter !== 'All') list = list.filter(c => c.type === filter);
+  var typeSet = ['All'];
+  for (var t = 0; t < CARS.length; t++) {
+    if (typeSet.indexOf(CARS[t].type) === -1) {
+      typeSet.push(CARS[t].type);
+    }
+  }
+  var types = typeSet;
 
-    // Filter by search
+  var shown = [];
+  for (var i = 0; i < CARS.length; i++) {
+    var car = CARS[i];
+    var matchType = filter === 'All' || car.type === filter;
+    var matchSearch = true;
     if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(c =>
-        c.name.toLowerCase().includes(q) ||
-        c.type.toLowerCase().includes(q) ||
-        c.fuel.toLowerCase().includes(q)
+      var q = search.toLowerCase();
+      matchSearch = (
+        car.name.toLowerCase().indexOf(q) !== -1 ||
+        car.type.toLowerCase().indexOf(q) !== -1 ||
+        car.fuel.toLowerCase().indexOf(q) !== -1
       );
     }
-
-    // Sort
-    if (sort === 'price-asc') {
-      list.sort((a, b) => parseFloat(a.price.replace(/[^0-9.]/g, '')) - parseFloat(b.price.replace(/[^0-9.]/g, '')));
-    } else if (sort === 'price-desc') {
-      list.sort((a, b) => parseFloat(b.price.replace(/[^0-9.]/g, '')) - parseFloat(a.price.replace(/[^0-9.]/g, '')));
-    } else if (sort === 'year-new') {
-      list.sort((a, b) => b.year - a.year);
+    if (matchType && matchSearch) {
+      shown.push(car);
     }
+  }
 
-    return list;
-  }, [filter, search, sort]);
+  if (sort === 'price-asc') {
+    shown.sort(function(a, b) {
+      return parseFloat(a.price.replace(/[^0-9.]/g, '')) - parseFloat(b.price.replace(/[^0-9.]/g, ''));
+    });
+  } else if (sort === 'price-desc') {
+    shown.sort(function(a, b) {
+      return parseFloat(b.price.replace(/[^0-9.]/g, '')) - parseFloat(a.price.replace(/[^0-9.]/g, ''));
+    });
+  } else if (sort === 'year-new') {
+    shown.sort(function(a, b) {
+      return b.year - a.year;
+    });
+  }
 
   return (
-    <section className="page" style={{ background: 'none', border: 'none', padding: 0 }}>
+    <div className="page" style={{ background: 'none', border: 'none', padding: 0 }}>
 
-      {/* Header */}
       <div className="inventory-header">
-        <div className="section-label">🚘 Full Collection</div>
-        <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(2rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: 8 }}>
+        <div className="section-label">Full Collection</div>
+        <h1 style={{ fontSize: '2.6rem', fontWeight: '900', marginBottom: '8px' }}>
           Vehicle Inventory
         </h1>
-        <p style={{ color: 'var(--text-secondary)', maxWidth: 560 }}>
+        <p style={{ color: '#B8C1D6', maxWidth: '560px' }}>
           Browse our complete selection of {CARS.length} premium vehicles. Click any car to explore full specs and details.
         </p>
 
-        {/* Controls */}
-        <div className="inventory-controls">
-          {/* Search */}
+        <div className="inventory-controls" style={{ marginTop: '16px', display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
           <div className="search-wrap">
-            <span className="search-icon">🔍</span>
+            <span className="search-icon"></span>
             <input
               type="text"
               placeholder="Search by name, type, fuel…"
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={function(e) { setSearch(e.target.value); }}
             />
           </div>
 
-          {/* Sort */}
           <select
             value={sort}
-            onChange={e => setSort(e.target.value)}
+            onChange={function(e) { setSort(e.target.value); }}
             style={{
-              padding: '11px 16px', background: 'var(--bg-card)',
-              border: '1px solid var(--border)', borderRadius: 999,
-              color: 'var(--text-primary)', fontSize: '0.88rem',
-              fontWeight: 600, outline: 'none', cursor: 'pointer',
-              fontFamily: 'inherit'
+              padding: '11px 16px', background: '#131E36',
+              border: '1px solid rgba(255,255,255,0.08)', borderRadius: '999px',
+              color: '#EAEAEA', fontSize: '0.88rem',
+              fontWeight: '600', outline: 'none', cursor: 'pointer'
             }}
           >
             <option value="default">Sort: Default</option>
-            <option value="price-asc">Price: Low → High</option>
-            <option value="price-desc">Price: High → Low</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
             <option value="year-new">Year: Newest First</option>
           </select>
         </div>
 
-        {/* Filter pills */}
-        <div className="filter-pills" style={{ marginTop: 16 }}>
-          {types.map(t => (
-            <button
-              key={t}
-              className={`filter-pill${filter === t ? ' active' : ''}`}
-              onClick={() => setFilter(t)}
-            >
-              {t}
-              {t !== 'All' && (
-                <span style={{ marginLeft: 6, opacity: 0.6, fontSize: '0.78rem' }}>
-                  ({CARS.filter(c => c.type === t).length})
-                </span>
-              )}
-            </button>
-          ))}
+        <div className="filter-pills" style={{ marginTop: '16px' }}>
+          {types.map(function(t) {
+            var count = 0;
+            for (var k = 0; k < CARS.length; k++) {
+              if (CARS[k].type === t) count++;
+            }
+            return (
+              <button
+                key={t}
+                className={'filter-pill' + (filter === t ? ' active' : '')}
+                onClick={function(type) { return function() { setFilter(type); }; }(t)}
+              >
+                {t}
+                {t !== 'All' && (
+                  <span style={{ marginLeft: '6px', opacity: '0.6', fontSize: '0.78rem' }}>
+                    ({count})
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Results count */}
-      <div style={{ marginBottom: 24, color: 'var(--text-muted)', fontSize: '0.87rem', fontWeight: 600 }}>
-        Showing <span style={{ color: 'var(--accent)' }}>{shown.length}</span> of {CARS.length} vehicles
+      <div style={{ marginBottom: '24px', color: '#8C98B0', fontSize: '0.87rem', fontWeight: '600' }}>
+        Showing <span style={{ color: '#D4AF37' }}>{shown.length}</span> of {CARS.length} vehicles
       </div>
 
-      {/* Grid */}
       {shown.length === 0 ? (
         <div className="no-results">
-          <div className="no-results-icon">🔍</div>
+          <div className="no-results-icon"></div>
           <h3>No vehicles found</h3>
           <p>Try adjusting your search or filter.</p>
           <button
-            onClick={() => { setSearch(''); setFilter('All'); }}
+            onClick={function() { setSearch(''); setFilter('All'); }}
             className="btn btn-secondary btn-sm"
-            style={{ marginTop: 16 }}
+            style={{ marginTop: '16px' }}
           >
             Clear Filters
           </button>
         </div>
       ) : (
         <div className="cars-grid">
-          {shown.map(car => (
-            <Link to={`/car/${car.id}`} key={car.id} className="car-card">
-              <div className="car-card-img-wrap">
-                <img
-                  src={car.image}
-                  alt={car.name}
-                  loading="lazy"
-                  onError={e => { e.target.src = `https://picsum.photos/seed/car${car.id}/640/420`; }}
-                />
-                <div className="car-card-badge">{car.badge}</div>
-                <div className="car-card-type">
-                  <span className="badge">{car.type}</span>
+          {shown.map(function(car) {
+            return (
+              <Link to={'/car/' + car.id} key={car.id} className="car-card">
+                <div className="car-card-img-wrap">
+                  <img
+                    src={car.image}
+                    alt={car.name}
+                    loading="lazy"
+                    onError={function(e) { e.target.src = 'https://picsum.photos/seed/car' + car.id + '/640/420'; }}                  />
+                  <div className="car-card-badge">{car.badge}</div>
+                  <div className="car-card-type">
+                    <span className="badge">{car.type}</span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="car-card-body">
-                <div className="car-card-meta">
-                  <span className="car-card-year">{car.year}</span>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>•</span>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{car.fuel}</span>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>•</span>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{car.transmission.split('/')[0].trim()}</span>
+                <div className="car-card-body">
+                  <div className="car-card-meta">
+                    <span className="car-card-year">{car.year}</span>
+                    <span style={{ color: '#8C98B0', fontSize: '0.75rem' }}>•</span>
+                    <span style={{ fontSize: '0.8rem', color: '#8C98B0' }}>{car.fuel}</span>
+                    <span style={{ color: '#8C98B0', fontSize: '0.75rem' }}>•</span>
+                    <span style={{ fontSize: '0.8rem', color: '#8C98B0' }}>{car.transmission.split('/')[0].trim()}</span>
+                  </div>
+                  <div className="car-card-name">{car.name}</div>
+                  <div className="car-card-desc">{car.description}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="car-card-price">{car.price}</div>
+                    <span style={{
+                      fontSize: '0.75rem', fontWeight: '700', padding: '4px 10px',
+                      borderRadius: '999px', background: car.accentColor + '18',
+                      color: car.accentColor, border: '1px solid ' + car.accentColor + '30'
+                    }}>
+                      {car.power}
+                    </span>
+                  </div>
+                  {car.emi && (
+                    <div style={{ fontSize: '0.78rem', color: '#8C98B0', marginTop: '-6px' }}>
+                      EMI from <span style={{ color: '#34d399', fontWeight: '700' }}>{car.emi}</span>
+                    </div>
+                  )}
                 </div>
-                <div className="car-card-name">{car.name}</div>
-                <div className="car-card-desc">{car.description}</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div className="car-card-price">{car.price}</div>
-                  <span style={{
-                    fontSize: '0.75rem', fontWeight: 700, padding: '4px 10px',
-                    borderRadius: 999, background: `${car.accentColor}18`,
-                    color: car.accentColor, border: `1px solid ${car.accentColor}30`
-                  }}>
-                    {car.power}
+
+                <div className="car-card-footer">
+                  <span className="car-card-mileage">{car.mileage}</span>
+                  <span style={{ color: '#D4AF37', fontWeight: '700', fontSize: '0.85rem' }}>
+                    View Details →
                   </span>
                 </div>
-                {car.emi && (
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: -6 }}>
-                    EMI from <span style={{ color: '#34d399', fontWeight: 700 }}>{car.emi}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="car-card-footer">
-                <span className="car-card-mileage">🛣️ {car.mileage}</span>
-                <span style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.85rem' }}>
-                  View Details →
-                </span>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       )}
-    </section>
+    </div>
   );
 }

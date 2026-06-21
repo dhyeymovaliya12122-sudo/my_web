@@ -1,26 +1,48 @@
+import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 
 export default function Header() {
-  const { user, logout } = useAuth();
-  const [open, setOpen]   = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const dropRef = useRef(null);
-  const navigate = useNavigate();
+  var auth = useAuth();
+  var user = auth.user;
+  var logout = auth.logout;
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
+  var openState = useState(false);
+  var open = openState[0];
+  var setOpen = openState[1];
+
+  var scrolledState = useState(false);
+  var scrolled = scrolledState[0];
+  var setScrolled = scrolledState[1];
+
+  var dropRef = useRef(null);
+  var navigate = useNavigate();
+
+  useEffect(function() {
+    function onScroll() {
+      if (window.scrollY > 10) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    }
     window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+    return function() {
+      window.removeEventListener('scroll', onScroll);
+    };
   }, []);
 
-  useEffect(() => {
+  useEffect(function() {
     function onClickOutside(e) {
-      if (dropRef.current && !dropRef.current.contains(e.target)) setOpen(false);
+      if (dropRef.current && !dropRef.current.contains(e.target)) {
+        setOpen(false);
+      }
     }
     document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
+    return function() {
+      document.removeEventListener('mousedown', onClickOutside);
+    };
   }, []);
 
   function handleLogout() {
@@ -29,35 +51,39 @@ export default function Header() {
     navigate('/');
   }
 
-  const initials = user
-    ? user.name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-    : '';
+  var initials = '';
+  if (user) {
+    var words = user.name.trim().split(' ');
+    for (var i = 0; i < words.length; i++) {
+      initials += words[i][0];
+    }
+    initials = initials.toUpperCase().slice(0, 2);
+  }
 
-  const joinDate = user?.createdAt
-    ? new Date(user.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long' })
-    : 'Member';
+  var joinDate = 'Member';
+  if (user && user.createdAt) {
+    joinDate = new Date(user.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long' });
+  }
 
   return (
-    <header className="header" style={{ boxShadow: scrolled ? '0 4px 32px rgba(0,0,0,0.4)' : 'none' }}>
-      {/* Brand */}
+    <div className="header" style={{ boxShadow: scrolled ? '0 4px 32px rgba(0,0,0,0.4)' : 'none' }}>
       <Link to="/" className="header-brand">
         <div className="brand-icon"></div>
         <span className="brand-name">DriveLine Motors</span>
       </Link>
 
-      {/* Nav */}
-      <nav className="header-nav">
-        <NavLink to="/"          end className={({ isActive }) => isActive ? 'active' : ''}>Home</NavLink>
-        <NavLink to="/inventory"     className={({ isActive }) => isActive ? 'active' : ''}>Inventory</NavLink>
-        <NavLink to="/about"         className={({ isActive }) => isActive ? 'active' : ''}>About</NavLink>
-        <NavLink to="/contact"       className={({ isActive }) => isActive ? 'active' : ''}>Contact</NavLink>
+      <div className="header-nav">
+        <NavLink to="/" end className={function(p) { return p.isActive ? 'active' : ''; }}>Home</NavLink>
+        <NavLink to="/inventory" className={function(p) { return p.isActive ? 'active' : ''; }}>Inventory</NavLink>
+        <NavLink to="/about" className={function(p) { return p.isActive ? 'active' : ''; }}>About</NavLink>
+        <NavLink to="/contact" className={function(p) { return p.isActive ? 'active' : ''; }}>Contact</NavLink>
 
         {user ? (
           <div className="acct-wrap" ref={dropRef}>
             <button
               className="acct-avatar-btn"
-              onClick={() => setOpen(p => !p)}
-              title={`Signed in as ${user.name}`}
+              onClick={function() { setOpen(function(p) { return !p; }); }}
+              title={'Signed in as ' + user.name}
               aria-label="Account menu"
             >
               {initials}
@@ -73,7 +99,7 @@ export default function Header() {
                   </div>
                 </div>
 
-                <div className="acct-divider" />
+                <div className="acct-divider"></div>
 
                 <div className="acct-detail-row">
                   <span className="acct-detail-label">Joined</span>
@@ -81,15 +107,17 @@ export default function Header() {
                 </div>
                 <div className="acct-detail-row">
                   <span className="acct-detail-label">Email</span>
-                  <span className="acct-detail-val" style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</span>
+                  <span className="acct-detail-val" style={{ maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {user.email}
+                  </span>
                 </div>
 
-                <div className="acct-divider" />
+                <div className="acct-divider"></div>
 
                 <Link
                   to="/inventory"
-                  onClick={() => setOpen(false)}
-                  style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '10px', background: 'rgba(56,189,248,0.1)', color: '#38bdf8', fontWeight: 700, fontSize: '0.9rem', marginBottom: '10px' }}
+                  onClick={function() { setOpen(false); }}
+                  style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '10px', background: 'rgba(56,189,248,0.1)', color: '#38bdf8', fontWeight: '700', fontSize: '0.9rem', marginBottom: '10px' }}
                 >
                   Browse Inventory
                 </Link>
@@ -103,7 +131,7 @@ export default function Header() {
         ) : (
           <Link to="/signin" className="nav-signin">Sign In</Link>
         )}
-      </nav>
-    </header>
+      </div>
+    </div>
   );
 }

@@ -1,16 +1,18 @@
-const path = require('path');
+var path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
-const express = require('express');
-const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const mongoose = require('mongoose');
-const { User, Inquiry, Car } = require('./db/user');
+var express = require('express');
+var cors = require('cors');
+var bcrypt = require('bcryptjs');
+var mongoose = require('mongoose');
+var userDb = require('./db/user');
+var User = userDb.User;
+var Inquiry = userDb.Inquiry;
+var Car = userDb.Car;
 
-const app = express();
+var app = express();
 app.use(express.json());
 
-// Allow both production (Netlify) and local dev origins
-const ALLOWED_ORIGINS = [
+var ALLOWED_ORIGINS = [
   'https://cars-inventory.netlify.app',
   'http://localhost:3000',
   'http://localhost:3001',
@@ -18,18 +20,16 @@ const ALLOWED_ORIGINS = [
 ];
 
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (Postman, curl, etc.)
+  origin: function(origin, callback) {
     if (!origin || ALLOWED_ORIGINS.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error(`CORS blocked: ${origin}`));
+      callback(new Error('CORS blocked: ' + origin));
     }
   },
   credentials: true,
 }));
 
-// Guard clause for missing environment variable
 if (!process.env.MONGODB_URL) {
   console.error('CRITICAL ERROR: MONGODB_URL is not defined in .env file.');
   process.exit(1);
@@ -38,32 +38,31 @@ if (!process.env.MONGODB_URL) {
 mongoose.connect(process.env.MONGODB_URL, {
   serverSelectionTimeoutMS: 30000,
 })
-  .then(() => {
-    console.log('MongoDB connected at', process.env.MONGODB_URL);
-    const PORT = process.env.PORT || 5500;
-    app.listen(PORT, () => {
-      console.log(`Backend running at http://localhost:${PORT}`);
+  .then(function() {
+    console.log('MongoDB connected at ' + process.env.MONGODB_URL);
+    var PORT = process.env.PORT || 5500;
+    app.listen(PORT, function() {
+      console.log('Backend running at http://localhost:' + PORT);
     });
   })
-  .catch(err => {
-    console.error('MongoDB connection error:', err.message);
+  .catch(function(err) {
+    console.error('MongoDB connection error: ' + err.message);
     process.exit(1);
   });
 
 // -- Routes -------------------------------------------------------
 
 // Health check
-app.get('/health', (req, res) => {
-  const dbOk = mongoose.connection.readyState === 1;
+app.get('/health', function(req, res) {
+  var dbOk = mongoose.connection.readyState === 1;
   res.json({ ok: true, dbConnected: dbOk, uptime: process.uptime() });
 });
 
-app.get('/', (req, res) => {
+app.get('/', function(req, res) {
   res.json({ message: 'DriveLine Motors API', dbConnected: mongoose.connection.readyState === 1 });
 });
 
-// Seed data (only inserted if collection is empty)
-const seedCars = [
+var seedCars = [
   {
     name: 'Maruti Swift ZXi+', year: 2024, type: 'Hatchback',
     price: '₹ 9,50,000', mileage: '9,500 km', fuel: 'Petrol', power: '89 bhp',
@@ -102,10 +101,10 @@ const seedCars = [
   },
 ];
 
-// GET /cars — returns all cars (auto-seeds if empty)
-app.get('/cars', async (req, res) => {
+// GET /cars
+app.get('/cars', async function(req, res) {
   try {
-    let cars = await Car.find();
+    var cars = await Car.find();
     if (cars.length === 0) {
       cars = await Car.insertMany(seedCars);
       console.log('Cars collection seeded.');
@@ -117,8 +116,10 @@ app.get('/cars', async (req, res) => {
 });
 
 // POST /register
-app.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
+app.post('/register', async function(req, res) {
+  var name = req.body.name;
+  var email = req.body.email;
+  var password = req.body.password;
 
   if (!name || !email || !password)
     return res.status(400).json({ success: false, message: 'All fields are required.' });
@@ -126,13 +127,13 @@ app.post('/register', async (req, res) => {
     return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' });
 
   try {
-    const normalizedEmail = email.toLowerCase().trim();
-    const existing = await User.findOne({ email: normalizedEmail });
+    var normalizedEmail = email.toLowerCase().trim();
+    var existing = await User.findOne({ email: normalizedEmail });
     if (existing)
       return res.status(400).json({ success: false, message: 'This email is already registered.' });
 
-    const hashed = await bcrypt.hash(password, 10);
-    const user = new User({ name: name.trim(), email: normalizedEmail, password: hashed });
+    var hashed = await bcrypt.hash(password, 10);
+    var user = new User({ name: name.trim(), email: normalizedEmail, password: hashed });
     await user.save();
     res.status(201).json({ success: true, message: 'Account created!', user: { name: user.name, email: normalizedEmail } });
   } catch (err) {
@@ -141,19 +142,20 @@ app.post('/register', async (req, res) => {
 });
 
 // POST /login
-app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+app.post('/login', async function(req, res) {
+  var email = req.body.email;
+  var password = req.body.password;
 
   if (!email || !password)
     return res.status(400).json({ success: false, message: 'Email and password are required.' });
 
   try {
-    const normalizedEmail = email.toLowerCase().trim();
-    const user = await User.findOne({ email: normalizedEmail });
+    var normalizedEmail = email.toLowerCase().trim();
+    var user = await User.findOne({ email: normalizedEmail });
     if (!user)
       return res.status(401).json({ success: false, message: 'No account found with that email.' });
 
-    const match = await bcrypt.compare(password, user.password);
+    var match = await bcrypt.compare(password, user.password);
     if (!match)
       return res.status(401).json({ success: false, message: 'Incorrect password.' });
 
@@ -164,9 +166,8 @@ app.post('/login', async (req, res) => {
 });
 
 // Simple Admin Middleware
-const requireAdmin = (req, res, next) => {
-  const adminKey = req.headers['x-admin-key'];
-  // Replace 'super-secret-key' with an environment variable in production
+var requireAdmin = function(req, res, next) {
+  var adminKey = req.headers['x-admin-key'];
   if (adminKey !== process.env.ADMIN_KEY || !process.env.ADMIN_KEY) {
     return res.status(403).json({ error: 'Unauthorized access' });
   }
@@ -174,25 +175,29 @@ const requireAdmin = (req, res, next) => {
 };
 
 // POST /inquiry
-app.post('/inquiry', async (req, res) => {
-  const { name, email, phone, message } = req.body;
+app.post('/inquiry', async function(req, res) {
+  var name = req.body.name;
+  var email = req.body.email;
+  var phone = req.body.phone;
+  var message = req.body.message;
+
   if (!name || !email || !message)
     return res.status(400).json({ success: false, message: 'All fields are required.' });
 
   try {
-    const inquiry = new Inquiry({ name, email, phone, message });
+    var inquiry = new Inquiry({ name: name, email: email, phone: phone, message: message });
     await inquiry.save();
-    console.log(`New inquiry from ${name} (${email})`);
+    console.log('New inquiry from ' + name + ' (' + email + ')');
     res.status(201).json({ success: true, message: 'Inquiry received!' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// GET /users (admin — omits passwords)
-app.get('/users', requireAdmin, async (req, res) => {
+// GET /users (admin)
+app.get('/users', requireAdmin, async function(req, res) {
   try {
-    const users = await User.find({}, { password: 0 });
+    var users = await User.find({}, { password: 0 });
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -200,13 +205,11 @@ app.get('/users', requireAdmin, async (req, res) => {
 });
 
 // GET /inquiries (admin)
-app.get('/inquiries', requireAdmin, async (req, res) => {
+app.get('/inquiries', requireAdmin, async function(req, res) {
   try {
-    const inquiries = await Inquiry.find().sort({ createdAt: -1 });
+    var inquiries = await Inquiry.find().sort({ createdAt: -1 });
     res.json(inquiries);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
-
-// Note: Server starts in mongoose.connect().then() block above

@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './AuthContext';
 import Header from './header';
@@ -16,7 +17,7 @@ function App() {
       <BrowserRouter>
         <div className="app">
           <Header />
-          <main className="main-content">
+          <div className="main-content">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/inventory" element={<Gallery />} />
@@ -25,7 +26,7 @@ function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/signin" element={<Signin />} />
             </Routes>
-          </main>
+          </div>
           <Footer />
         </div>
       </BrowserRouter>

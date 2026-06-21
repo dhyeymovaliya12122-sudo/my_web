@@ -1,17 +1,24 @@
+import React from 'react';
 import { createContext, useContext, useState } from 'react';
 
-const AuthContext = createContext(null);
+var AuthContext = createContext(null);
 
-export function AuthProvider({ children }) {
-  // Restore from localStorage so login survives page refresh / tab close
-  const [user, setUser] = useState(() => {
-    try {
-      const stored = localStorage.getItem('drivelineUser');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
+export function AuthProvider(props) {
+  var children = props.children;
+
+  var storedUser = null;
+  try {
+    var stored = localStorage.getItem('drivelineUser');
+    if (stored) {
+      storedUser = JSON.parse(stored);
     }
-  });
+  } catch (e) {
+    storedUser = null;
+  }
+
+  var userState = useState(storedUser);
+  var user = userState[0];
+  var setUser = userState[1];
 
   function login(userData) {
     setUser(userData);
@@ -24,10 +31,12 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user: user, login: login, logout: logout }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  return useContext(AuthContext);
+}
