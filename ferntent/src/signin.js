@@ -33,11 +33,11 @@ export default function Signin() {
   var showPw = showPwState[0];
   var setShowPw = showPwState[1];
 
-  useEffect(function() {
+  useEffect(function () {
     if (user) navigate('/');
   }, [user, navigate]);
 
-  var checkHealth = useCallback(async function() {
+  var checkHealth = useCallback(async function () {
     setDbOnline(null);
     try {
       var res = await fetch(`${API}/health`);
@@ -52,7 +52,7 @@ export default function Signin() {
     }
   }, [setDbOnline]);
 
-  useEffect(function() {
+  useEffect(function () {
     checkHealth();
   }, [checkHealth]);
 
@@ -85,7 +85,7 @@ export default function Signin() {
       if (data.success) {
         login({ name: data.user.name, email: data.user.email, createdAt: new Date().toISOString() });
         setMsg({ text: 'Welcome, ' + data.user.name + '! Redirecting...', type: 'success' });
-        setTimeout(function() { navigate('/'); }, 1200);
+        setTimeout(function () { navigate('/'); }, 1200);
       } else {
         setMsg({ text: data.message || 'Registration failed.', type: 'error' });
       }
@@ -111,7 +111,7 @@ export default function Signin() {
       if (data.success) {
         login({ name: data.user.name, email: data.user.email, createdAt: data.user.createdAt || new Date().toISOString() });
         setMsg({ text: 'Welcome back, ' + data.user.name + '!', type: 'success' });
-        setTimeout(function() { navigate('/'); }, 1200);
+        setTimeout(function () { navigate('/'); }, 1200);
       } else {
         setMsg({ text: data.message || 'Login failed.', type: 'error' });
       }
@@ -149,13 +149,13 @@ export default function Signin() {
         <div className="signin-tabs">
           <button
             className={'signin-tab' + (tab === 'login' ? ' active' : '')}
-            onClick={function() { switchTab('login'); }}
+            onClick={function () { switchTab('login'); }}
           >
             Log In
           </button>
           <button
             className={'signin-tab' + (tab === 'register' ? ' active' : '')}
-            onClick={function() { switchTab('register'); }}
+            onClick={function () { switchTab('register'); }}
           >
             Register
           </button>
@@ -208,7 +208,7 @@ export default function Signin() {
             <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span>Password</span>
               <button type="button"
-                onClick={function() { setShowPw(function(p) { return !p; }); }}
+                onClick={function () { setShowPw(function (p) { return !p; }); }}
                 style={{ background: 'none', border: 'none', color: '#D4AF37', cursor: 'pointer', fontSize: '0.78rem', fontWeight: '600' }}>
                 {showPw ? 'Hide' : 'Show'}
               </button>
@@ -227,7 +227,7 @@ export default function Signin() {
 
         <div className="signin-switch">
           {tab === 'register' ? 'Already have an account? ' : "Don't have an account? "}
-          <button onClick={function() { switchTab(tab === 'register' ? 'login' : 'register'); }}>
+          <button onClick={function () { switchTab(tab === 'register' ? 'login' : 'register'); }}>
             {tab === 'register' ? 'Log In' : 'Register'}
           </button>
         </div>

@@ -1,7 +1,7 @@
-// ─────────────────────────────────────────────────────────────────────────────
+
 // Centralized car catalog with accurate 2024 ex-showroom prices (India)
 // and model-accurate car images
-// ─────────────────────────────────────────────────────────────────────────────
+
 export const CARS = [
   {
     id: 1,

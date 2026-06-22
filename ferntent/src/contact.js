@@ -18,12 +18,18 @@ export default function Contact() {
   var loading = loadingState[0];
   var setLoading = loadingState[1];
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(function() {
     if (user) {
-      setForm({ name: user.name, email: user.email, phone: form.phone, message: form.message });
+      setForm(function(prevForm) {
+        return {
+          name: user.name,
+          email: user.email,
+          phone: prevForm.phone,
+          message: prevForm.message
+        };
+      });
     }
-  }, [user]);
+  }, [user, setForm]);
 
   function handleChange(e) {
     var newForm = { name: form.name, email: form.email, phone: form.phone, message: form.message };
