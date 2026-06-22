@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import API from './api';
@@ -37,11 +37,7 @@ export default function Signin() {
     if (user) navigate('/');
   }, [user, navigate]);
 
-  useEffect(function() {
-    checkHealth();
-  }, []);
-
-  async function checkHealth() {
+  var checkHealth = useCallback(async function() {
     setDbOnline(null);
     try {
       var res = await fetch(`${API}/health`);
@@ -54,7 +50,11 @@ export default function Signin() {
     } catch (e) {
       setDbOnline(false);
     }
-  }
+  }, [setDbOnline]);
+
+  useEffect(function() {
+    checkHealth();
+  }, [checkHealth]);
 
   function handleChange(e) {
     var newForm = { name: form.name, email: form.email, password: form.password };

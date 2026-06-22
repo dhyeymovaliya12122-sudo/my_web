@@ -35,20 +35,23 @@ if (!process.env.MONGODB_URL) {
   process.exit(1);
 }
 
+// Connect to MongoDB in the background
 mongoose.connect(process.env.MONGODB_URL, {
   serverSelectionTimeoutMS: 30000,
 })
   .then(function() {
     console.log('MongoDB connected at ' + process.env.MONGODB_URL);
-    var PORT = process.env.PORT || 5500;
-    app.listen(PORT, function() {
-      console.log('Backend running at http://localhost:' + PORT);
-    });
   })
   .catch(function(err) {
-    console.error('MongoDB connection error: ' + err.message);
-    process.exit(1);
+    console.error('MongoDB initial connection error: ' + err.message);
+    // Do not call process.exit(1) so that Express server stays online to serve CORS/404 errors nicely
   });
+
+// Start the Express server immediately
+var PORT = process.env.PORT || 5500;
+app.listen(PORT, function() {
+  console.log('Backend running at http://localhost:' + PORT);
+});
 
 // -- Routes -------------------------------------------------------
 

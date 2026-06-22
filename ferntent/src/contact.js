@@ -18,6 +18,7 @@ export default function Contact() {
   var loading = loadingState[0];
   var setLoading = loadingState[1];
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(function() {
     if (user) {
       setForm({ name: user.name, email: user.email, phone: form.phone, message: form.message });
@@ -59,13 +60,6 @@ export default function Contact() {
     }
     setLoading(false);
   }
-
-  var infoItems = [
-    { label: 'Address', value: '456 MG Road, Andheri West\nMumbai - 400053' },
-    { label: 'Phone', phone: true, href: 'tel:+919876543210', value: '+91 98765 43210' },
-    { label: 'Email', email: true, href: 'mailto:sales@drivelinemotors.in', value: 'sales@drivelinemotors.in' },
-    { label: 'Hours', value: 'Mon-Sat: 9am - 7pm\nSun: 10am - 5pm' },
-  ];
 
   return (
     <div className="page" style={{ background: 'none', border: 'none', padding: 0 }}>

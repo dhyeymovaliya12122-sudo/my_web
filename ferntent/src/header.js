@@ -31,7 +31,7 @@ export default function Header() {
     return function() {
       window.removeEventListener('scroll', onScroll);
     };
-  }, []);
+  }, [setScrolled]);
 
   useEffect(function() {
     function onClickOutside(e) {
@@ -43,7 +43,7 @@ export default function Header() {
     return function() {
       document.removeEventListener('mousedown', onClickOutside);
     };
-  }, []);
+  }, [setOpen]);
 
   function handleLogout() {
     logout();
